@@ -200,7 +200,7 @@ class CommentController {
     public async deleteComment(req: Request, res: Response) {
         const { comment } = req.local;
 
-        await getRepository(Comment).delete(comment);
+        await getRepository(Comment).delete({ id: comment.id });
 
         res.status(200).json({
             data: { message: "deleted comment" },

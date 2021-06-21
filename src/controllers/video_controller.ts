@@ -105,7 +105,7 @@ class VideoController {
                     qb
                         .select("vl.like", "react")
                         .from(VideoLike, "vl")
-                        .where("vl.video_id = :videoId AND users.id = :userId", {
+                        .where("vl.video_id = :videoId AND vl.user_id = :userId", {
                             videoId: video_id,
                             userId: req.local.auth?.id,
                         }),
@@ -113,6 +113,11 @@ class VideoController {
             )
             .where({ id: video_id })
             .getOne();
+
+        console.log({
+            videoId: video_id,
+            userId: req.local.auth?.id,
+        });
 
         res.status(200).json({
             data: video,
@@ -314,7 +319,7 @@ class VideoController {
         await staticService.deleteVideo(extractFilenameFromPath(video.videoPath));
         await staticService.deleteThumbnail(extractFilenameFromPath(video.thumbnailPath));
 
-        await getRepository(Video).delete(video);
+        await getRepository(Video).delete({ id: video.id });
 
         res.status(200).json({
             data: { message: "deleted video" },

@@ -1,22 +1,16 @@
 import * as path from "path";
-import { Connection, createConnection } from "typeorm";
-import env from "./env";
+import { Connection, createConnection, ConnectionOptionsReader } from "typeorm";
 
 class Database {
+    public static CONNECTION_OPTION_NAME = "default";
+
     public connection: Connection;
 
     public async createConnection(): Promise<void> {
-        this.connection = await createConnection({
-            type: "postgres",
-            host: env.DB_HOST,
-            port: env.DB_PORT,
-            username: env.DB_USERNAME,
-            password: env.DB_PASSWORD,
-            database: env.DB_NAME,
-            synchronize: false,
-            logging: env.NODE_ENV === "development" ? ["query"] : false,
-            entities: [path.join(__dirname, "../entities/*{.ts,.js}")],
-        });
+        const reader = new ConnectionOptionsReader({ root: path.join(__dirname, "..") });
+        const option = await reader.get(Database.CONNECTION_OPTION_NAME);
+
+        this.connection = await createConnection(option);
     }
 }
 
